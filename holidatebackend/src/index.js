@@ -10,7 +10,8 @@ const fs = require('fs');
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-
+app.use(express.static(path.join(__dirname, "../../holidate/dist")))
+// console.log(path.join(__dirname, "../../holidate/dist"))
 require("./database/connect");
 const Register = require("./models/register");
 const { default: mongoose } = require('mongoose');
@@ -28,9 +29,10 @@ const storage = multer.diskStorage({
 var upload = multer({ storage: storage });
 
 app.get("/", (req, res) => {
-    res.send("hello people");
+    res.sendFile(path.join(__dirname, "../../holidate/public/index.html"));
+    console.log(res);
 })
-
+// console.log(path.join(__dirname, "../../holidate/public/index.html"))
 app.get("/register", (req, res) => {
     res.send("registered user page");
 })
@@ -294,6 +296,8 @@ app.delete("/deleteuser/:id", async (req, res)=>{
     }
     
 })
+
+// console.log("directory name  :", __dirname);
 
 app.listen(3000, () => {
     console.log("server is listening to port 3000");
