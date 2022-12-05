@@ -33,10 +33,11 @@ app.get("/", (req, res) => {
     console.log(res);
 })
 console.log(path.join(__dirname, "../../holidate/public/index.html"))
-app.get("/register", (req, res) => {
+
+app.get("/api/register", (req, res) => {
     res.send("registered user page");
 })
-app.post("/register", async (req, res) => {
+app.post("/api/register", async (req, res) => {
     try {
         const registerUser = new Register({
             fullname: req.body.fullname,
@@ -58,7 +59,7 @@ app.post("/register", async (req, res) => {
 })
 
 
-app.post("/login", async (req, res) => {
+app.post("/api/login", async (req, res) => {
     try {
         // console.log(req.body);
         Register.findOne({ email: req.body.email }, (err, user) => {
@@ -102,7 +103,7 @@ app.post("/login", async (req, res) => {
     }
 })
 
-app.put('/file', function (req, res) {
+app.put('/api/file', function (req, res) {
     console.log("this is request body filter for app put ",req.body.filter);
     console.log("user id ", req.body.userid);
     try{
@@ -143,7 +144,7 @@ app.put('/file', function (req, res) {
 });
 
 
-app.post("/file", upload.single("file"), (req, res, next) => {
+app.post("/api/file", upload.single("file"), (req, res, next) => {
     // console.log("this is request body for app post ",req.body);
     const file = req.file;
     // console.log(file.filename);
@@ -179,7 +180,7 @@ app.post("/file", upload.single("file"), (req, res, next) => {
 })
 
 
-app.post("/occasion", async (req, res) => {
+app.post("/api/occasion", async (req, res) => {
     // console.log(req.body);
     try {
         // res.status(200).json({
@@ -205,7 +206,7 @@ app.post("/occasion", async (req, res) => {
     }
 })
 
-app.put("/connection", (req, res)=>{
+app.put("/api/connection", (req, res)=>{
     console.log(req.body);
     // Register.updateOne({ _id }, { $set: { image : imgObj.image } }) 
     const updateUserConnections = async (_id) => {
@@ -267,7 +268,7 @@ app.put("/connection", (req, res)=>{
     });
 })
 
-app.put("/match", (req, res)=>{
+app.put("/api/match", (req, res)=>{
     // console.log(req.body);
     Register.findOne( { _id  : req.body.userid } , (err, user)=>{
         if(err) console.log(err);
@@ -285,7 +286,7 @@ app.put("/match", (req, res)=>{
     })
 })
 
-app.delete("/deleteuser/:id", async (req, res)=>{
+app.delete("/api/deleteuser/:id", async (req, res)=>{
     try{
         console.log("user id delete : ", req.params.id);
         const result = await Register.findByIdAndDelete(req.params.id);
