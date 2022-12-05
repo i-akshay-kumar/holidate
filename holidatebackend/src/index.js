@@ -32,7 +32,7 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "../../holidate/public/index.html"));
     console.log(res);
 })
-// console.log(path.join(__dirname, "../../holidate/public/index.html"))
+console.log(path.join(__dirname, "../../holidate/public/index.html"))
 app.get("/register", (req, res) => {
     res.send("registered user page");
 })
