@@ -29,7 +29,7 @@ const storage = multer.diskStorage({
 var upload = multer({ storage: storage });
 
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "../../holidate/dist/index.html"));
+    res.sendFile(path.join(__dirname, "../../holidate/public/index.html"));
     console.log(res);
 })
 // console.log(path.join(__dirname, "../../holidate/public/index.html"))
@@ -122,7 +122,7 @@ app.put('/api/file', function (req, res) {
             }
 
             else{
-                // console.log(user);
+                // console.log("user file", user);
                 return res.status(201).json({
                     userdata : user
                 })
@@ -236,7 +236,7 @@ app.put("/api/connection", (req, res)=>{
         // }
 
         else{
-            console.log( "user is : ", user);
+            // console.log( "user is : ", user);
             console.log(" this is user connections", user[0].connections)
             for(let i = 0; i <  user[0].connections.length ; i++){
 
@@ -285,6 +285,47 @@ app.put("/api/match", (req, res)=>{
         }
     })
 })
+
+app.put("/api/resetmatch", (req, res)=>{
+    console.log("reset match user id", req.body.userid);
+    Register.findOne({ _id : req.body.userid }, (err, user)=>{     //finding user id
+        if(err) console.log(err);
+        if(!user) console.log("invalid object id");
+        else{
+            let userMatchArr = user.match;                  //match array of the user
+            console.log("User Match array: ", userMatchArr);
+
+            userMatchArr.forEach(element => {                                 //traversing all the object Ids of the match array of the user
+                Register.findOne({ _id : element}, (err, matchUser)=>{        //finding connected users
+                    if(err) console.log("error finding element", err);
+                    if(!matchUser) console.log("object id not found");
+                    else{
+                        let connectedUserMatchArr = matchUser.match ;         //match array of connected users
+                        console.log("Before splicing", connectedUserMatchArr);
+                        let indexOfUser = connectedUserMatchArr.indexOf(req.body.userid);        //index of user in match array of connected users
+                        connectedUserMatchArr.splice(indexOfUser, 1);                  //removing it
+                        console.log("After splicing", connectedUserMatchArr)
+
+                        const updateConnectedUserMatchArr = async (_id) => {
+                            try {
+                                const result = await Register.updateOne({ _id }, { $set: { match : connectedUserMatchArr } })  
+                                console.log("modification successful", result);
+                            } catch (err) {
+                                console.log(err);
+                            }
+                        }
+                    
+                        updateConnectedUserMatchArr(element);    //update the match array with the modified one 
+                    }
+                })
+            });
+
+            return res.status(201).json({
+                title : "connected user's match array reset successfull"
+            })
+        }
+    })
+} );
 
 app.delete("/api/deleteuser/:id", async (req, res)=>{
     try{
