@@ -11,7 +11,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "../../holidate/dist")))
-// console.log(path.join(__dirname, "../../holidate/dist"))
+
 require("./database/connect");
 const Register = require("./models/register");
 const { default: mongoose } = require('mongoose');
@@ -32,7 +32,6 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "../../holidate/public/index.html"));
     console.log(res);
 })
-// console.log(path.join(__dirname, "../../holidate/public/index.html"))
 
 app.get("/api/register", (req, res) => {
     res.send("registered user page");
@@ -61,7 +60,7 @@ app.post("/api/register", async (req, res) => {
 
 app.post("/api/login", async (req, res) => {
     try {
-        // console.log(req.body);
+
         Register.findOne({ email: req.body.email }, (err, user) => {
             if (err) return res.status(500).json({
                 title: "server error",
@@ -89,8 +88,6 @@ app.post("/api/login", async (req, res) => {
 
             //no error
             else {
-                // console.log(user);
-
                 return res.status(200).json({
                     title: "login successful", 
                     isAuthUser : true,
@@ -104,11 +101,9 @@ app.post("/api/login", async (req, res) => {
 })
 
 app.put('/api/file', function (req, res) {
-    console.log("this is request body filter for app put ",req.body.filter);
-    console.log("user id ", req.body.userid);
     try{
         Register.find({ $and : [ { occasion  : { $in :  req.body.filter  }}, { _id : { $ne : req.body.userid } } ] },(err, user) =>{
-            // { filter : 0 , password : 0, email : 0}, unable to set it to the query
+            
             if (err) return res.status(500).json({
                 title: "server error",
                 error: err
@@ -116,13 +111,13 @@ app.put('/api/file', function (req, res) {
 
             if (!user) {
                 return res.status(401).json({
-                    title: "no match find",
+                    title: "no match found",
                     error: "try adding different filters"
                 })
             }
 
             else{
-                // console.log("user file", user);
+                
                 return res.status(201).json({
                     userdata : user
                 })
@@ -131,23 +126,13 @@ app.put('/api/file', function (req, res) {
     } catch(err){ 
         console.log("error in finding data");
     }
-    // let posts = Register.find({ _id : "6383cad6beaa16767866d328"}, function(err, posts){
-    //     if(err){
-    //         console.log(err);
-    //     }
-    //     else {
-    //         res.send(posts);
-    //         //console.log("this is request body for app get ",req.body);
-    //     }
-    // });
-    // console.log(posts);
+
 });
 
 
 app.post("/api/file", upload.single("file"), (req, res, next) => {
-    // console.log("this is request body for app post ",req.body);
+
     const file = req.file;
-    // console.log(file.filename);
     if (!file) {
         return res.status(400).json({
             title: "image upload failed",
@@ -155,21 +140,17 @@ app.post("/api/file", upload.single("file"), (req, res, next) => {
         })
     }
     res.send(file)
-    // console.log(path.join(__dirname + "/uploads/" + req.file.filename))
-    // console.log(req.file.path);
+
     const imgObj = {
         image: {
             data : fs.readFileSync(req.file.path),
             contentType : "image/jpg"
         }
     }
-    // console.log("this is userid", req.body.userid);
-    // console.log(req.file);
 
     const updateUserData = async (_id) => {
         try {
             await Register.updateOne({ _id }, { $set: { image : imgObj.image } })  
-            // console.log(result);
         } catch (err) {
             console.log(err);
         }
@@ -181,11 +162,7 @@ app.post("/api/file", upload.single("file"), (req, res, next) => {
 
 
 app.post("/api/occasion", async (req, res) => {
-    // console.log(req.body);
     try {
-        // res.status(200).json({
-        //     title: "data updated successfully"
-        // })
         await Register.findByIdAndUpdate(req.body.userid, {
             $set : {
                 occasion : req.body.occasion, 
@@ -197,9 +174,7 @@ app.post("/api/occasion", async (req, res) => {
             useFindAndModify: false
         });
 
-        // console.log(result);
     } catch (err) {
-        console.log(err);
         res.status(400).json({
             title: "error",
         })
@@ -207,8 +182,7 @@ app.post("/api/occasion", async (req, res) => {
 })
 
 app.put("/api/connection", (req, res)=>{
-    console.log(req.body);
-    // Register.updateOne({ _id }, { $set: { image : imgObj.image } }) 
+
     const updateUserConnections = async (_id) => {
         try {
             const result = await Register.updateOne({ _id }, { $set: { connections : req.body.userconnections } })  
@@ -219,25 +193,15 @@ app.put("/api/connection", (req, res)=>{
     }
 
     updateUserConnections(req.body.userid);
-    // Register.updateOne({ _id : req.body.userid }, { $set : { connections : req.body.userconnections } }) ; 
     
-    console.log("user id   ", req.body.userid);
     Register.find( { _id : req.body.connectUserID }, { image : 0 }, (err, user)=>{
         if (err) return res.status(500).json({
             title: "server error",
             error: err
         })
 
-        // if (!user) {
-        //     return res.status(401).json({
-        //         title: "no match find",
-        //         error: "try adding different filters"
-        //     })
-        // }
-
         else{
-            // console.log( "user is : ", user);
-            console.log(" this is user connections", user[0].connections)
+            
             for(let i = 0; i <  user[0].connections.length ; i++){
 
                 if(user[0].connections[i] == req.body.userid){
@@ -247,7 +211,6 @@ app.put("/api/connection", (req, res)=>{
                     }
                     const updateConnectUserMatch = async (_id) => {
                         await Register.updateOne({ _id }, { $addToSet : { match :  req.body.userid }  });
-                        // console.log(result);
                     }
                     updateUserMatch(req.body.userid);
                     updateConnectUserMatch(req.body.connectUserID);
@@ -269,7 +232,6 @@ app.put("/api/connection", (req, res)=>{
 })
 
 app.put("/api/match", (req, res)=>{
-    // console.log(req.body);
     Register.findOne( { _id  : req.body.userid } , (err, user)=>{
         if(err) console.log(err);
         if(!user) console.log("no user found");
@@ -287,24 +249,20 @@ app.put("/api/match", (req, res)=>{
 })
 
 app.put("/api/resetmatch", (req, res)=>{
-    console.log("reset match user id", req.body.userid);
-    Register.findOne({ _id : req.body.userid }, (err, user)=>{     //finding user id
+    Register.findOne({ _id : req.body.userid }, (err, user)=>{     
         if(err) console.log(err);
         if(!user) console.log("invalid object id");
         else{
-            let userMatchArr = user.match;                  //match array of the user
-            console.log("User Match array: ", userMatchArr);
+            let userMatchArr = user.match;                
 
-            userMatchArr.forEach(element => {                                 //traversing all the object Ids of the match array of the user
-                Register.findOne({ _id : element}, (err, matchUser)=>{        //finding connected users
+            userMatchArr.forEach(element => {                                 
+                Register.findOne({ _id : element}, (err, matchUser)=>{       
                     if(err) console.log("error finding element", err);
                     if(!matchUser) console.log("object id not found");
                     else{
-                        let connectedUserMatchArr = matchUser.match ;         //match array of connected users
-                        console.log("Before splicing", connectedUserMatchArr);
-                        let indexOfUser = connectedUserMatchArr.indexOf(req.body.userid);        //index of user in match array of connected users
-                        connectedUserMatchArr.splice(indexOfUser, 1);                  //removing it
-                        console.log("After splicing", connectedUserMatchArr)
+                        let connectedUserMatchArr = matchUser.match ;       
+                        let indexOfUser = connectedUserMatchArr.indexOf(req.body.userid);       
+                        connectedUserMatchArr.splice(indexOfUser, 1);     
 
                         const updateConnectedUserMatchArr = async (_id) => {
                             try {
@@ -315,7 +273,7 @@ app.put("/api/resetmatch", (req, res)=>{
                             }
                         }
                     
-                        updateConnectedUserMatchArr(element);    //update the match array with the modified one 
+                        updateConnectedUserMatchArr(element);    
                     }
                 })
             });
@@ -339,7 +297,6 @@ app.delete("/api/deleteuser/:id", async (req, res)=>{
     
 })
 
-// console.log("directory name  :", __dirname);
 
 app.listen(3000, () => {
     console.log("server is listening to port 3000");
