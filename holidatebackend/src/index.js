@@ -237,7 +237,7 @@ app.put("/api/match", (req, res)=>{
         if(!user) console.log("no user found");
         else{
             let useridmatcharr  = user.match ;
-            Register.find( { _id  : { $in : useridmatcharr  } }, (err, user) =>{
+            Register.find( { _id  : { $in : useridmatcharr  } }, {password : 0}, (err, user) =>{
                 return res.status(201).json({
                 title : "match result",
                 usermatch : user 
